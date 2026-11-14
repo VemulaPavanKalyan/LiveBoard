@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiveBoard · Live project board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{
+  --ink:#150e1d; --plum:#231733; --mist:#f3ecf7; --dim:#a698b8;
+  --sea:#5fd6bf; --saffron:#f4b942; --rose:#ef6f88; --lilac:#b9a2f2;
+  --glass:rgba(255,255,255,.055); --edge:rgba(255,255,255,.12);
+  --r-lg:26px; --r-md:16px; --r-sm:10px;
+  --bs-body-bg:var(--ink); --bs-body-color:var(--mist);
+  --bs-body-font-family:'Figtree',system-ui,sans-serif;
+}
+html,body{min-height:100%}
+body{
+  background:
+    radial-gradient(60rem 40rem at 8% -10%, rgba(239,111,136,.22), transparent 60%),
+    radial-gradient(50rem 40rem at 100% 10%, rgba(95,214,191,.16), transparent 60%),
+    radial-gradient(45rem 35rem at 40% 110%, rgba(244,185,66,.12), transparent 60%),
+    var(--ink);
+  background-attachment:fixed; font-size:.95rem;
+}
+h1,h2,h3,.display{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+.glass{
+  background:var(--glass); border:1px solid var(--edge); border-radius:var(--r-lg);
+  backdrop-filter:blur(22px) saturate(140%); -webkit-backdrop-filter:blur(22px) saturate(140%);
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 24px 48px -28px rgba(0,0,0,.7);
+}
+.glass.tight{border-radius:var(--r-md)}
+.layout{display:grid;grid-template-columns:300px 1fr;gap:1.5rem;padding:1.5rem;max-width:1480px;margin:auto}
+@media(max-width:991px){.layout{grid-template-columns:1fr;padding:1rem}}
+.rail{position:sticky;top:1.5rem;align-self:start;max-height:calc(100vh - 3rem);overflow:auto;padding:1.25rem}
+@media(max-width:991px){.rail{position:static;max-height:none}}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:'Bricolage Grotesque';font-weight:700;font-size:1.35rem}
+.brand i{width:30px;height:30px;border-radius:10px;background:conic-gradient(from 200deg,var(--rose),var(--saffron),var(--sea),var(--rose));display:block;box-shadow:0 0 24px rgba(239,111,136,.5)}
+.live{display:inline-flex;align-items:center;gap:.45rem;font-size:.8rem;color:var(--dim);padding:.3rem .7rem;border:1px solid var(--edge);border-radius:99px}
+.live b{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+.live.on b{background:var(--sea);box-shadow:0 0 0 0 rgba(95,214,191,.7);animation:ping 2s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 9px rgba(95,214,191,0)}100%{box-shadow:0 0 0 0 rgba(95,214,191,0)}}
+.proj{display:block;width:100%;text-align:left;border:1px solid transparent;background:transparent;color:inherit;border-radius:var(--r-md);padding:.75rem .85rem;margin-bottom:.35rem;transition:background .2s,border-color .2s}
+.proj:hover{background:var(--glass)}
+.proj.active{background:rgba(255,255,255,.09);border-color:var(--edge)}
+.proj .nm{font-weight:600;display:flex;justify-content:space-between;gap:.5rem}
+.proj .bar{height:4px;border-radius:9px;background:rgba(255,255,255,.1);margin-top:.5rem;overflow:hidden}
+.proj .bar i{display:block;height:100%;background:var(--sea);border-radius:9px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.form-control,.form-select{background-color:rgba(255,255,255,.06);border:1px solid var(--edge);color:var(--mist);border-radius:var(--r-sm)}
+.form-control:focus,.form-select:focus{background-color:rgba(255,255,255,.09);border-color:var(--saffron);box-shadow:0 0 0 .2rem rgba(244,185,66,.18);color:var(--mist)}
+.form-control::placeholder{color:#7f7192}
+.form-label{color:var(--dim);font-size:.82rem;margin-bottom:.25rem}
+.btn-go{background:var(--saffron);color:#2a1c05;font-weight:600;border:0;border-radius:var(--r-sm);padding:.55rem 1.1rem}
+.btn-go:hover{background:#ffc95c;color:#2a1c05}.btn-go:disabled{opacity:.45}
+.btn-ghost{background:transparent;border:1px solid var(--edge);color:var(--dim);border-radius:var(--r-sm)}
+.btn-ghost:hover{color:var(--rose);border-color:var(--rose);background:rgba(239,111,136,.08)}
+:focus-visible{outline:2px solid var(--lilac);outline-offset:2px}
+.hero{padding:1.6rem 1.8rem;display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;justify-content:space-between}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;margin:0}
+.hero p{color:var(--dim);margin:.3rem 0 0;max-width:52ch}
+.pct{font-family:'Bricolage Grotesque';font-size:clamp(3rem,7vw,5rem);font-weight:700;line-height:1;color:var(--sea)}
+.kpi{padding:1.1rem 1.25rem}
+.kpi small{color:var(--dim)}
+.kpi .v{font-family:'Bricolage Grotesque';font-size:2rem;font-weight:700;line-height:1.1}
+.kpi .tick{height:3px;width:36px;border-radius:3px;margin-bottom:.7rem}
+.chart-box{padding:1.2rem 1.3rem;height:100%}
+.chart-box h2{font-size:1.05rem;margin:0 0 .8rem}
+.chart-wrap{position:relative;height:230px}
+.chip{border:1px solid var(--edge);background:transparent;color:var(--dim);border-radius:99px;padding:.25rem .8rem;font-size:.82rem}
+.chip.on{background:var(--mist);color:var(--ink);border-color:var(--mist)}
+.trow{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:1rem;align-items:center;padding:.85rem 1rem;border-radius:var(--r-md);border:1px solid transparent;transition:background .2s}
+.trow:hover{background:rgba(255,255,255,.05);border-color:var(--edge)}
+.trow.flash{animation:flash 1.2s}
+@keyframes flash{from{background:rgba(95,214,191,.22)}}
+@media(max-width:767px){.trow{grid-template-columns:auto 1fr auto;}.trow .meta,.trow .due{grid-column:2/4}}
+.check{width:22px;height:22px;border-radius:50%;border:2px solid var(--dim);background:transparent;display:grid;place-items:center;color:transparent;transition:.2s;padding:0}
+.check:hover{border-color:var(--sea)}
+.check.done{background:var(--sea);border-color:var(--sea);color:var(--ink)}
+.ttl{font-weight:600}.done-t .ttl{text-decoration:line-through;color:var(--dim)}
+.desc{color:var(--dim);font-size:.85rem;white-space:pre-wrap}
+.pill{font-size:.76rem;padding:.2rem .65rem;border-radius:99px;font-weight:600;border:1px solid}
+.p-high{color:var(--rose);border-color:rgba(239,111,136,.45);background:rgba(239,111,136,.1)}
+.p-medium{color:var(--saffron);border-color:rgba(244,185,66,.45);background:rgba(244,185,66,.1)}
+.p-low{color:var(--lilac);border-color:rgba(185,162,242,.45);background:rgba(185,162,242,.1)}
+.due{font-size:.85rem;color:var(--dim);white-space:nowrap}.due.late{color:var(--rose);font-weight:600}
+.sel-s{width:auto;padding:.25rem 1.8rem .25rem .6rem;font-size:.82rem}
+.toastbox{position:fixed;right:1rem;bottom:1rem;z-index:50;display:grid;gap:.5rem}
+.toast-i{padding:.7rem 1rem;border-radius:var(--r-md);background:rgba(35,23,51,.92);border:1px solid var(--edge);backdrop-filter:blur(14px);animation:rise .3s}
+.toast-i.err{border-color:var(--rose)}.toast-i.ok{border-color:var(--sea)}
+@keyframes rise{from{transform:translateY(8px);opacity:0}}
+.empty{text-align:center;color:var(--dim);padding:2.5rem 1rem}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="rail glass">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="brand"><i></i>LiveBoard</div>
+      <span id="live" class="live"><b></b><span id="liveText">Connecting</span></span>
+    </div>
+
+    <h2 class="h6 text-secondary mb-2">Projects</h2>
+    <div id="projectList" class="mb-4"></div>
+
+    <form id="projectForm" class="border-top pt-3" style="border-color:var(--edge)!important">
+      <h2 class="h6 text-secondary mb-2">New project</h2>
+      <input id="projectName" name="name" class="form-control mb-2" maxlength="100" placeholder="Project name" required aria-label="Project name">
+      <textarea id="projectDescription" name="description" class="form-control mb-2" rows="2" maxlength="1000" placeholder="What is this project about?" aria-label="Project description"></textarea>
+      <button class="btn btn-go w-100" type="submit">Create project</button>
+    </form>
+  </aside>
+
+  <main class="min-w-0">
+    <section class="hero glass mb-4">
+      <div>
+        <h1 id="heroTitle">Pick a project</h1>
+        <p id="heroDesc">Create a project on the left to start tracking tasks. Everything syncs live across open tabs.</p>
+      </div>
+      <div class="text-end">
+        <div class="pct" id="heroPct">0%</div>
+        <small class="text-secondary" id="heroSub">complete</small>
+      </div>
+    </section>
+
+    <section class="row g-3 mb-4">
+      <div class="col-6 col-xl-3"><div class="kpi glass tight"><div class="tick" style="background:var(--lilac)"></div><small>To do</small><div class="v" id="kTodo">0</div></div></div>
+      <div class="col-6 col-xl-3"><div class="kpi glass tight"><div class="tick" style="background:var(--saffron)"></div><small>In progress</small><div class="v" id="kProg">0</div></div></div>
+      <div class="col-6 col-xl-3"><div class="kpi glass tight"><div class="tick" style="background:var(--sea)"></div><small>Done</small><div class="v" id="kDone">0</div></div></div>
+      <div class="col-6 col-xl-3"><div class="kpi glass tight"><div class="tick" style="background:var(--rose)"></div><small>Overdue</small><div class="v" id="kLate">0</div></div></div>
+    </section>
+
+    <section class="row g-3 mb-4">
+      <div class="col-lg-4 col-md-6"><div class="chart-box glass"><h2>Where work stands</h2><div class="chart-wrap"><canvas id="cStatus" aria-label="Tasks by status"></canvas></div></div></div>
+      <div class="col-lg-4 col-md-6"><div class="chart-box glass"><h2>Priority mix</h2><div class="chart-wrap"><canvas id="cPriority" aria-label="Tasks by priority"></canvas></div></div></div>
+      <div class="col-lg-4"><div class="chart-box glass"><h2>Project progress</h2><div class="chart-wrap"><canvas id="cProjects" aria-label="Progress per project"></canvas></div></div></div>
+      <div class="col-12"><div class="chart-box glass"><h2>Created vs. finished, last 14 days</h2><div class="chart-wrap"><canvas id="cTrend" aria-label="Task trend"></canvas></div></div></div>
+    </section>
+
+    <section class="glass p-3 p-md-4 mb-4">
+      <h2 class="h5 mb-3">Add a task</h2>
+      <form id="taskForm" class="row g-2 align-items-end">
+        <div class="col-md-5"><label class="form-label" for="taskTitle">Title</label><input id="taskTitle" name="title" class="form-control" maxlength="200" required placeholder="What needs doing?"></div>
+        <div class="col-6 col-md-2"><label class="form-label" for="taskPriority">Priority</label>
+          <select id="taskPriority" name="priority" class="form-select"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="taskDueDate">Due</label><input id="taskDueDate" name="due_date" type="date" class="form-control"></div>
+        <div class="col-md-2"><button id="addTaskButton" class="btn btn-go w-100" type="submit">Add task</button></div>
+        <div class="col-12"><textarea id="taskDescription" name="description" class="form-control" rows="2" maxlength="1000" placeholder="Notes (optional)" aria-label="Task notes"></textarea></div>
+      </form>
+    </section>
+
+    <section class="glass p-3 p-md-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h5 m-0">Tasks</h2>
+        <div id="filters" class="d-flex gap-2 flex-wrap">
+          <button class="chip on" data-f="all">All</button><button class="chip" data-f="todo">To do</button>
+          <button class="chip" data-f="in_progress">In progress</button><button class="chip" data-f="done">Done</button>
+        </div>
+      </div>
+      <div id="taskList"></div>
+      <p id="emptyState" class="empty d-none mb-0"></p>
+    </section>
+  </main>
+</div>
+<div id="toasts" class="toastbox" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
